@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<head>
+  <style>
+    div {
+  margin: 20px auto;
+  width: 456px;
+}
+
+div > div {
+  display: inline-block;
+  width: 100px;
+  height: 100px;
+  border: solid 2px red;
+  margin: 5px;
+  text-align: center;
+  font-size: 36px;
+  color: red;
+  border-radius: 10px;
+}
+#reverse{
+  margin: 20px 35%;
+  background: #fff;
+  border: 2px solid red;
+  width: 120px;
+  height: 60px;
+  font-size: 16px;
+  color: red;
+  border-radius: 10px;
+  outline: none;
+}
+  </style>
+</head>
+<body>
+</body>
+<script>
+var fifteen = {
+  Move: {
+    up: -4,
+    left: -1,
+    down: 4, 
+    right: 1
+  },
+  order: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].sort(function() {
+   return Math.random()-.5; 
+ }).concat(0),
+  pusto: 15,
+  isOk: function() {
+   return !this.order.some(function(item, i) {
+    return item > 0 && item-1 !== i; 
+  }); 
+ },
+  go: function(move) {
+    var index = this.pusto + move;
+    if (!this.order[index]) return false;
+    if (move == fifteen.Move.left || move == fifteen.Move.right)
+      if (Math.floor(this.pusto/4) !== Math.floor(index/4)) return false;
+    this.swap(index, this.pusto);
+    this.pusto = index;
+    return true; 
+  },
+  swap: function(i1, i2) {
+   var t = this.order[i1]; this.order[i1] = this.order[i2]; this.order[i2] = t; 
+ },
+  solvable: function(a) {
+    for (var kDisorder = 0, i = 1, len = a.length-1; i < len; i++)
+      for (var j = i-1; j >= 0; j--) if (a[j] > a[i]) kDisorder++;
+    return !(kDisorder % 2); 
+  } 
+};
+
+if (!fifteen.solvable(fifteen.order)) fifteen.swap(0, 1);
+
+var box = document.body.appendChild(document.createElement('div'));
+for (var i = 0; i < 16; i++) box.appendChild(document.createElement('div'));
+var button = document.createElement('button');
+button.innerHTML = "Начать заново";
+button.id = "reverse";
+document.body.children[1].appendChild(button);
+
+window.addEventListener('keydown', function(e) {
+  if (fifteen.go(fifteen.Move[{39: 'left', 37: 'right', 40: 'up', 38: 'down'}[e.keyCode]])) {
+    draw(); if (fifteen.isOk()) {
+      box.style.backgroundColor = "gold";
+
+      
+      window.removeEventListener('keydown', arguments.callee); } 
+    }
+});
+draw();
+function draw() {
+  for (var i = 0, tile; tile = box.childNodes[i], i < 16; i++) {
+    tile.textContent = fifteen.order[i]; tile.style.visibility = fifteen.order[i]? 'visible' : 'hidden'; 
+  } 
+};
+document.getElementById('reverse').onclick = function(){
+  location.reload();
+}
+</script>
